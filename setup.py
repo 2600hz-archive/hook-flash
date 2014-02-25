@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import os.path
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 def read(fname):
@@ -13,7 +13,8 @@ setup(name='hook-flash',
       author='Ben Wann',
       author_email='ben@2600hz.com',
       url='https://github.com/2600hz/hook-flash',
-      packages=['p2p-sip'],
+      install_requires=('multitask',),
+      packages=find_packages(),
       classifiers=[
           'Development Status :: 3 - Alpha',
           'Intended Audience :: Developers',
