@@ -1,1 +1,4 @@
 *.pyc
+build
+dist
+hook_flash.egg-info
