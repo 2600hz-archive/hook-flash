@@ -13,6 +13,7 @@ setup(name='hook-flash',
       author='Ben Wann',
       author_email='ben@2600hz.com',
       url='https://github.com/2600hz/hook-flash',
+      packages=['p2p-sip'],
       classifiers=[
           'Development Status :: 3 - Alpha',
           'Intended Audience :: Developers',
