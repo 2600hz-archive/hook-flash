@@ -3,17 +3,14 @@
 import os.path
 from setuptools import setup, find_packages
 
-def read(fname):
-    return open(os.path.join(os.path.dirname(__file__), fname)).read()
-
 setup(name='hook-flash',
       version='0.0.1',
       description='A rtmp-sip gateway based on rtmplite and p2psip.',
       author='Ben Wann',
       author_email='ben@2600hz.com',
       url='https://github.com/2600hz/hook-flash',
-      install_requires=('multitask',),
-      packages=find_packages(),
+      install_requires=['multitask','p2psip'],
+      packages=['rtmplite'],
       scripts=['rtmplite/siprtmp_gevent.py', 'rtmplite/siprtmp.py'],
       classifiers=[
           'Development Status :: 3 - Alpha',
