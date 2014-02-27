@@ -1,3 +1,0 @@
-Usage:
-Proxy all SIP to a single address (kamailio)
-python siprtmp_gevent.py -d -g 0.0.0.0:5060

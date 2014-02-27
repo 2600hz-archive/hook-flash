@@ -523,7 +523,7 @@ try:
     from app.voip import User, Session, MediaSession
     from std.rfc3550 import RTP, Network as RTPNetwork
     from std.rfc2396 import Address
-    from rfc4566 import SDP, attrs as format
+    from std.rfc4566 import SDP, attrs as format
     from std.rfc2833 import DTMF
     from std.rfc3261 import Header as SIPHeader
     from std.kutil import setlocaladdr, getlocaladdr

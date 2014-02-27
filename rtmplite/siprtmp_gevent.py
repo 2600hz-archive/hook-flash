@@ -36,18 +36,16 @@ from gevent.server import StreamServer
 from gevent.queue import Queue, Empty 
 from gevent.coros import Semaphore
 
-import os, sys, traceback, time, struct, socket, random, rtmplite.amf, hashlib, hmac, random
+import os, sys, traceback, time, struct, socket, random, amf, hashlib, hmac, random
 from struct import pack, unpack
-from rtmplite.rtmp import Header, Message, Command, App, getfilename, Protocol, FLV as baseFLV
+from rtmp import Header, Message, Command, App, getfilename, Protocol, FLV as baseFLV
 
 try:
-    from p2psip.std import *
-    from p2psip.external import *
-    from p2psip.app.voip import MediaSession
-    from rtmplite.siprtmp import MediaContext
+    from std import rfc3261, rfc3264, rfc3550, rfc2396, rfc4566, rfc2833, kutil
+    from app.voip import MediaSession
+    from siprtmp import MediaContext
     sip = True
-except ImportError, e:
-    print 'import error {0}'.format(e)
+except:
     print 'warning: disabling SIP. To enable please include p2p-sip src directory in your PYTHONPATH before starting this application'
     sip = False
     # sys.exit(1)
@@ -1496,11 +1494,11 @@ if __name__ == '__main__':
     parser.add_option('-D', '--verbose-all', dest='verbose_all', default=False, action='store_true', help='enable full debug trace for all modules')
     (options, args) = parser.parse_args()
 
-    from rtmplite import rtmp
+    import rtmp
     rtmp._debug = options.verbose_all
     if sip:
-        import siprtmp, voip, rfc3550, rfc3261
-        siprtmp._debug = rfc3261._debug = options.verbose_all
+        import siprtmp, app.voip, std.rfc3550, std.rfc3261
+        siprtmp._debug = std.rfc3261._debug = options.verbose_all
         app.voip._debug = options.verbose or options.verbose_all
     _debug = options.verbose or options.verbose_all
     _debugAll = options.verbose_all
