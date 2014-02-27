@@ -25,8 +25,6 @@ cycles of about 66 MHz per audio call.
 
 try:
     import gevent
-    import p2psip
-    import rtmplite
 except ImportError:
     print 'Please install gevent and its dependencies'
     import sys
@@ -43,15 +41,16 @@ from struct import pack, unpack
 from rtmplite.rtmp import Header, Message, Command, App, getfilename, Protocol, FLV as baseFLV
 
 try:
-    print std
-    from std import rfc3261, rfc3264, rfc3550, rfc2396, rfc4566, rfc2833, kutil
-    print '2'
-    from app.voip import MediaSession
-    from siprtmp import MediaContext
+    from p2psip.std import *
+    from p2psip.external import *
+    from p2psip.app.voip import MediaSession
+    from rtmplite.siprtmp import MediaContext
     sip = True
-except:
+except ImportError, e:
+    print 'import error {0}'.format(e)
     print 'warning: disabling SIP. To enable please include p2p-sip src directory in your PYTHONPATH before starting this application'
-    sys.exit(1)
+    sip = False
+    # sys.exit(1)
 
 try: import audiospeex, audioop
 except: audiospeex = None
@@ -1500,8 +1499,8 @@ if __name__ == '__main__':
     from rtmplite import rtmp
     rtmp._debug = options.verbose_all
     if sip:
-        import siprtmp, app.voip, std.rfc3550, std.rfc3261
-        siprtmp._debug = std.rfc3261._debug = options.verbose_all
+        import siprtmp, voip, rfc3550, rfc3261
+        siprtmp._debug = rfc3261._debug = options.verbose_all
         app.voip._debug = options.verbose or options.verbose_all
     _debug = options.verbose or options.verbose_all
     _debugAll = options.verbose_all
