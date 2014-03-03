@@ -1136,7 +1136,7 @@ class Context(object):
             user.context, user.username, user.password = self, login, passwd
             if user.password:
                 if _debug: print '  registering addr=', addr, 'port=', port
-                result, reason = user.bind(addr, refresh=True)
+                result, reason = user.bind(addr, refresh=False)
                 if _debug: print '  registration returned', result, reason
                 if result == 'failed':
                     self.client.rejectConnection(reason=reason)
