@@ -1121,7 +1121,8 @@ class Context(object):
         addr = '"%s" <sip:%s>'%(display, aor) if display else 'sip:%s'%(aor)
         sock = socket.socket(type=socket.SOCK_DGRAM) # signaling socket for SIP
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        port = self.app._ports.get(aor, 0)
+	if _debug: print self.app._ports
+	port = self.app._ports.get(aor, 0)
 	proxy = '"%s" <sip:%s>'%(display, options.gateway_ip) if display else 'sip:%s'%(options.gateway_ip)
         try: sock.bind((self.client.server.int_ip, port)); port = sock.getsockname()[1]
         except:
@@ -1301,7 +1302,7 @@ class Context(object):
                     self.sip_invite(str(rfc2396.Address(arg[0])))
                 elif cmd == 'notify': #do some stuff
                     self.incoming = arg
-                    if _debug: print 'foo', arg
+                    if _debug: print 'notify', arg
                     self.sip_notify(arg[0], arg[1])
                 elif cmd == 'close': # incoming call cancelled
                     self.incoming = None
@@ -1422,14 +1423,16 @@ class Gateway(App):
     def onConnect(self, client, *args):
         App.onConnect(self, client, args)
         # if you want to allow multiple registrations for same SIP user, comment following two lines
-        for c in self.clients:
-            c.closed()
+        #for c in self.clients:
+        #    c.closed()
         client.context = Context(self, client)
         client.context.rtmp_register(*args)
         return None
     def onDisconnect(self, client):
         App.onDisconnect(self, client)
         client.context.rtmp_unregister()
+    def onRegistrationOverwrite(self, client):
+        client.context.rtmp_registration_overwrite()
     def onCommand(self, client, cmd, *args):
         App.onCommand(self, client, cmd, args)
         if hasattr(client.context, 'rtmp_%s'%(cmd,)) and callable(eval('client.context.rtmp_%s'%(cmd,))):
