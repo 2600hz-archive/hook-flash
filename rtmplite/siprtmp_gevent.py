@@ -692,7 +692,7 @@ class User(object):
 
     #-------------------- binding related ---------------------------------
 
-    def bind(self, address, username=None, password=None, interval=180, refresh=False, update=False):
+    def bind(self, address, username=None, password=None, interval=60, refresh=False, update=False):
         '''Register the local address with the server to receive incoming requests.
         This is a generator function, and returns either ('success', None) for successful
         registration or ('failed', 'reason') for a failure. The username and password
@@ -715,6 +715,13 @@ class User(object):
         if _debug: print 'received response', result
         if result == 'failed': self.reg = None
         return (result, reason)
+
+    def stop_timer(self):
+        '''Close the binding by unregistering with the SIP server.'''
+        if not self.reg:
+            return ('failed', 'not bound')
+        reg = self.reg
+        if reg.gen: reg.gen.kill(); reg.gen = None
 
     def close(self):
         '''Close the binding by unregistering with the SIP server.'''
@@ -1136,7 +1143,7 @@ class Context(object):
             user.context, user.username, user.password = self, login, passwd
             if user.password:
                 if _debug: print '  registering addr=', addr, 'port=', port
-                result, reason = user.bind(addr, refresh=False)
+                result, reason = user.bind(addr, refresh=True)
                 if _debug: print '  registration returned', result, reason
                 if result == 'failed':
                     self.client.rejectConnection(reason=reason)
@@ -1423,8 +1430,8 @@ class Gateway(App):
     def onConnect(self, client, *args):
         App.onConnect(self, client, args)
         # if you want to allow multiple registrations for same SIP user, comment following two lines
-        #for c in self.clients:
-        #    c.closed()
+        for c in self.clients:
+            c.context.user.stop_timer()
         client.context = Context(self, client)
         client.context.rtmp_register(*args)
         return None
