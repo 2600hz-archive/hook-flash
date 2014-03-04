@@ -555,7 +555,7 @@ class FlashClient(object):
 #            response = Command(name='onStatus', id=cmd.id, tm=self.relativeTime, args=[amf.Object(level='error',code='NetStream.Seek.Failed',description=str(E),details=None)])
 #            self.writeMessage(response, stream)
 
-def onStreamMessage(self, stream, message):
+    def onStreamMessage(self, stream, message):
         '''Handle incoming media on the stream, by sending to other stream in this application instance.'''
         if stream.client is not None:
             inst = self.server.clients[self.path][0]
