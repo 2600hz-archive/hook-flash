@@ -40,14 +40,14 @@ import os, sys, traceback, time, struct, socket, random, amf, hashlib, hmac, ran
 from struct import pack, unpack
 from rtmp import Header, Message, Command, App, getfilename, Protocol, FLV as baseFLV
 
-try:
-    from std import rfc3261, rfc3264, rfc3550, rfc2396, rfc4566, rfc2833, kutil
-    from app.voip import MediaSession
-    from siprtmp import MediaContext
-    sip = True
-except:
-    print 'warning: disabling SIP. To enable please include p2p-sip src directory in your PYTHONPATH before starting this application'
-    sip = False
+#try:
+from p2psip.std import rfc3261, rfc3264, rfc3550, rfc2396, rfc4566, rfc2833, kutil
+from p2psip.app.voip import MediaSession
+from siprtmp import MediaContext
+sip = True
+#except:
+#    print 'warning: disabling SIP. To enable please include p2p-sip src directory in your PYTHONPATH before starting this application'
+ #   sip = False
     # sys.exit(1)
 
 try: import audiospeex, audioop
@@ -1547,9 +1547,11 @@ if __name__ == '__main__':
     import rtmp
     rtmp._debug = options.verbose_all
     if sip:
-        import siprtmp, app.voip, std.rfc3550, std.rfc3261
-        siprtmp._debug = std.rfc3261._debug = options.verbose_all
-        app.voip._debug = options.verbose or options.verbose_all
+        import siprtmp
+        from p2psip.app import voip
+        from p2psip.std import rfc3550, rfc3261
+        siprtmp._debug = rfc3261._debug = options.verbose_all
+        voip._debug = options.verbose or options.verbose_all
     _debug = options.verbose or options.verbose_all
     _debugAll = options.verbose_all
 

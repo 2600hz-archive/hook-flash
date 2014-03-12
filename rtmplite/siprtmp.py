@@ -519,17 +519,17 @@ from struct import pack, unpack
 from rtmp import App, Header, Message, FlashServer
 from amf import AMF0
 
-try:
-    from app.voip import User, Session, MediaSession
-    from std.rfc3550 import RTP, Network as RTPNetwork
-    from std.rfc2396 import Address
-    from std.rfc4566 import SDP, attrs as format
-    from std.rfc2833 import DTMF
-    from std.rfc3261 import Header as SIPHeader
-    from std.kutil import setlocaladdr, getlocaladdr
-except:
-    print 'Please include p2p-sip src directory in your PYTHONPATH'
-    sys.exit(1)
+#try:
+from p2psip.app.voip import User, Session, MediaSession
+from p2psip.std.rfc3550 import RTP, Network as RTPNetwork
+from p2psip.std.rfc2396 import Address
+from p2psip.std.rfc4566 import SDP, attrs as format
+from p2psip.std.rfc2833 import DTMF
+from p2psip.std.rfc3261 import Header as SIPHeader
+from p2psip.std.kutil import setlocaladdr, getlocaladdr
+#except:
+#    print 'Please include p2p-sip src directory in your PYTHONPATH'
+#    sys.exit(1)
     
 try: import audiospeex, audioop
 except: audiospeex = None
