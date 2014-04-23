@@ -1146,6 +1146,7 @@ class Context(object):
                 result, reason = user.bind(addr, refresh=True)
                 if _debug: print '  registration returned', result, reason
                 if result == 'failed':
+                    self.client.call('unauthorized', str(reason))
                     self.client.rejectConnection(reason=reason)
                     return
                 self._incomingHandlerTask = gevent.spawn(self._incomingHandler) # incoming SIP messages handler
