@@ -794,11 +794,11 @@ class User(object):
             return (None, 'sdp must be supplied')
 
         ua.sendRequest(m)
-        session, reason = self.continueConnect((ua, dest, sdp), provisional=provisional)
+        session, reason = self.continueConnect((ua, dest, sdp, None), provisional=provisional)
         return (session, reason)
 
     def continueConnect(self, context, provisional):
-        ua, dest, sdp = context
+        ua, dest, sdp, ignore = context
         while True:
             try:
                 response = ua.queue.get()
@@ -806,7 +806,11 @@ class User(object):
                 ua.sendCancel()
                 raise
             if response.response == 180 or response.response == 183:
-                context = (ua, dest, sdp)
+                if response.body and response['Content-Type'] and response['Content-Type'].value.lower() == 'application/sdp':
+                    yoursdp = rfc4566.SDP(response.body)
+                else:
+                    yoursdp = None
+                context = (ua, dest, sdp, yoursdp)
                 return (context, "%d %s"%(response.response, response.responsetext))
             if response.is2xx: # success
                 session = Session(user=self, dest=dest)
@@ -1185,12 +1189,25 @@ class Context(object):
                     except: dest = rfc2396.Address(self.user.address.uri.scheme + ':' + dest) # otherwise scheme is picked from registered URI
                     if _debug: print '  create media context'
                     media = MediaContext(self, None, self.client.server.int_ip, self._preferred, rfc3550.gevent_Network, *args) # create a media context for the call
+                    early_media = False
                     try:
                         self._connectTask = gevent.spawn(self.user.connect, dest, sdp=media.session.mysdp, provisional=True)
                         session, reason = self._connectTask.get()
                         if _debug: print '  session=', session, 'reason=', reason
                         while reason is not None and reason.partition(" ")[0] in ('180', '183'):
-                            self.client.call('ringing', reason)
+                            if session[3]:
+                                early_media = True
+                                media.session.setRemote(session[3])
+                                # Using accepted will build a two way stream
+                                #  and the stream from the broswer will expect
+                                #  self.media.  Additionally, this will cause a
+                                #  bye instead of a cancel.  A better way to fix
+                                #  this would be to use a param on ringing and
+                                #  modify the flash client
+                                self.media = media
+                                self.client.call('accepted')
+                            else:
+                                self.client.call('ringing', reason)
                             self._connectTask = gevent.spawn(self.user.continueConnect, session, provisional=True)
                             session, reason = self._connectTask.get()
                     except:
@@ -1199,8 +1216,11 @@ class Context(object):
                         else: raise StopIteration(None) # else call was cancelled in another task
                     self._connectTask = None # because the generator returned, and no more pending outgoing call
                     if session: # call connected
-                        self.media, self.session, session.media = media, session, media.session
-                        self.media.session.setRemote(session.yoursdp)
+                        if early_media:
+                            self.session, session.media = session, media.session
+                        else:
+                            self.media, self.session, session.media = media, session, media.session
+                            self.media.session.setRemote(session.yoursdp)
                         self._sessionHandlerTask = gevent.spawn(self._sessionHandler) # receive more requests from SIP
                         codecs = self.media.accepting()
                         if _debug: print 'sip-accepted %r'%(codecs,)
