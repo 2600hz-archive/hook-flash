@@ -410,8 +410,11 @@ class FlashClient(object):
             return
 
         if self.path not in self.server.clients:
-            self.server.clients[self.path] = [inst]; inst._clients=self.server.clients[self.path]
+            self.server.clients[self.path] = [inst]
+ 
+        inst._clients=self.server.clients[self.path]
         self.server.clients[self.path].append(self)
+
         if result is True:
             self.accept()
             self.connected = True
@@ -447,7 +450,6 @@ class FlashClient(object):
         for stream in self.streams.values(): # for all streams of this client
             self.onCloseStream(stream)
         self.streams.clear() # and clear the collection of streams
-        inst = None
         if self.path in self.server.clients and len(self.server.clients[self.path]) == 1: # no more clients left, delete the instance.
             if _debug: print 'removing the application instance'
             inst = self.server.clients[self.path][0]
