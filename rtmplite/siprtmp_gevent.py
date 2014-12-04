@@ -872,6 +872,10 @@ class User(object):
             phrase = reason
         ua.sendResponse(ua.createResponse(code, phrase))
 
+    def ringing(self, arg):
+        dest, ua = arg
+        ua.sendResponse(ua.createResponse(180, "RTMP Ringing"))
+
     def sendIM(self, dest, message):
         '''Send a paging-mode instant message to the destination and return ('success', None)
         or ('failed', 'reason')'''
@@ -1296,6 +1300,7 @@ class Context(object):
     def sip_invite(self, dest):
         try:
             if _debug: print 'sip-invite'
+            if self.user: self.user.ringing(self.incoming)
             self.client.call('invited', str(dest), str(self.user.address))
         except:
             if _debug: print '  exception in sip_invite', (sys and sys.exc_info() or None)
